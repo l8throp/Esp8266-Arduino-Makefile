@@ -33,7 +33,8 @@ ESPRESSIF_SDK = $(ARDUINO_HOME)/tools/sdk
 ESPTOOL ?= $(ROOT_DIR)/bin/esptool
 ESPOTA ?= $(ARDUINO_HOME)/tools/espota.py
 
-BUILD_OUT = ./build.$(ARDUINO_VARIANT)
+PROJECT_DIR ?= .
+BUILD_OUT = $(PROJECT_DIR)/builds/build.$(ARDUINO_VARIANT)
 
 CORE_SSRC = $(wildcard $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/*.S)
 CORE_SRC = $(wildcard $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/*.c)
@@ -56,7 +57,6 @@ ifndef USER_LIBS
     USER_LIBS = $(sort $(filter $(notdir $(wildcard $(USER_LIBDIR)/*)), \
         $(shell sed -ne 's/^ *\# *include *[<\"]\(.*\)\.h[>\"]/\1/p' $(LOCAL_SRCS))))
 endif
-
 
 # arduino libraries
 ALIBDIRS = $(sort $(dir $(wildcard \
@@ -102,6 +102,7 @@ DEFINES = $(USER_DEFINE) -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ \
 CORE_INC = $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH) \
 	$(ARDUINO_HOME)/variants/$(VARIANT)
 CORE_INC += $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/spiffs
+CORE_INC += $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/libb64
 
 INCLUDES = $(CORE_INC:%=-I%) $(ALIBDIRS:%=-I%) $(ULIBDIRS:%=-I%)
 VPATH = . $(CORE_INC) $(ALIBDIRS) $(ULIBDIRS)
@@ -132,11 +133,14 @@ all: show_variables dirs core libs bin size
 show_variables:  
 	$(info [ARDUINO_LIBS] : $(ARDUINO_LIBS)) 
 	$(info [USER_LIBS] : $(USER_LIBS))
+	$(info [ULIBDIRS] : $(ULIBDIRS))
+	$(info [USER_LIBDIR] : $(USER_LIBDIR))
 
 dirs:
 	@mkdir -p $(BUILD_OUT)
 	@mkdir -p $(BUILD_OUT)/core
 	@mkdir -p $(BUILD_OUT)/spiffs
+	@mkdir -p $(BUILD_OUT)/libb64
 
 clean:
 	rm -rf $(BUILD_OUT)
@@ -151,6 +155,9 @@ $(BUILD_OUT)/core/%.o: $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/%.c
 	$(CC) $(DEFINES) $(CORE_INC:%=-I%) $(CFLAGS) -o $@ $<
 
 $(BUILD_OUT)/spiffs/%.o: $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/spiffs/%.c
+	$(CC) $(DEFINES) $(CORE_INC:%=-I%) $(CFLAGS) -o $@ $<
+
+$(BUILD_OUT)/libb64/%.o: $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/libb64/%.c
 	$(CC) $(DEFINES) $(CORE_INC:%=-I%) $(CFLAGS) -o $@ $<
 
 $(BUILD_OUT)/core/%.o: $(ARDUINO_HOME)/cores/$(ARDUINO_ARCH)/%.cpp
