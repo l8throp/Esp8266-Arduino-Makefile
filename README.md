@@ -30,6 +30,7 @@ Based on Martin Oldfield arduino makefile : http://www.mjoldfield.com/atelier/20
 - Clone this repository : `git clone --recursive https://github.com/thunderace/Esp8266-Arduino-Makefile.git`
 - Install third party tools : for 64 bits linux `cd Esp8266-Arduino-Makefile && chmod +x install-x86_64-pc-linux-gnu.sh && ./install-x86_64-pc-linux-gnu.sh && cd ..` 
                               for 32 bits linux : `cd Esp8266-Arduino-Makefile && chmod +x install-i686-pc-linux-gnu.sh && ./install-i686-pc-linux-gnu.sh && cd ..` 
+- Ensure the YAML perl package is installed `apt-get install libconfig-yaml-perl`
 - In your sketch directory place a Makefile that defines anything that is project specific and follow that with a line `include /path_to_Esp8266-Arduino-Makefile_directory/esp8266Arduino.mk` (see example)
 - `make upload` should build your sketch and upload it...
 
